@@ -1,8 +1,6 @@
 package banking;
 
-import java.io.Console;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
