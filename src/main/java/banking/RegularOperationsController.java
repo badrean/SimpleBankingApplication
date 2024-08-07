@@ -3,6 +3,8 @@ package banking;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RegularOperationsController {
     private DatabaseManager dbManager;
@@ -208,6 +210,86 @@ public class RegularOperationsController {
             System.out.println("Account " + accountId + " deleted successfully.");
         } else {
             System.out.println("Delete failed. Account might not exist.");
+        }
+    }
+
+    private List<Integer> getAccountsById(String username) throws SQLException {
+        List<Integer> accountIds = new ArrayList<Integer>();
+        String accountsQuery = "SELECT account_id FROM accounts WHERE username = ?";
+        PreparedStatement accountsStatement = dbManager.getConnection().prepareStatement(accountsQuery);
+
+        accountsStatement.setString(1, username);
+        ResultSet accountsResultSet = accountsStatement.executeQuery();
+
+        while (accountsResultSet.next()) {
+            accountIds.add(accountsResultSet.getInt("account_id"));
+        }
+
+        return accountIds;
+    }
+
+    public void viewTransactions(String username) throws SQLException {
+        List<Integer> accounts = getAccountsById(username);
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("SELECT * FROM transactions WHERE account_id_from IN (");
+        for (int i = 0; i < accounts.size(); i++) {
+            queryBuilder.append("?");
+            if (i < accounts.size() - 1) {
+                queryBuilder.append(",");
+            }
+        }
+        queryBuilder.append(") OR account_id_to IN (");
+        for (int i = 0; i < accounts.size(); i++) {
+            queryBuilder.append("?");
+            if (i < accounts.size() - 1) {
+                queryBuilder.append(",");
+            }
+        }
+        queryBuilder.append(")");
+
+        PreparedStatement statement = dbManager.getConnection().prepareStatement(queryBuilder.toString());
+
+        int index = 1;
+        for (int account : accounts) {
+            statement.setInt(index++, account);
+        }
+        for (int account : accounts) {
+            statement.setInt(index++, account);
+        }
+
+        ResultSet resultSet = statement.executeQuery();
+
+        List<String> transactions = new ArrayList<>();
+
+        while(resultSet.next()) {
+            String transactionString = "";
+
+            String transactionType = resultSet.getString("transaction_type");
+            int fromAccount = resultSet.getInt("account_id_from");
+            double amount = resultSet.getDouble("amount");
+            String currency = resultSet.getString("currency");
+            java.sql.Timestamp timestamp = resultSet.getTimestamp("transaction_date");
+
+            if(transactionType.equals("transfer")) {
+                int toAccount = resultSet.getInt("account_id_to");
+                transactionString = "From: " + fromAccount + "\n" +
+                        "To: " + toAccount + "\n" +
+                        "Amount: " + amount + currency + "\n" +
+                        "Date: " + timestamp + "\n" +
+                        "Type: " + transactionType;
+            }
+            else {
+                transactionString = "From: " + fromAccount + "\n" +
+                        "Amount: " + amount + currency + "\n" +
+                        "Date: " + timestamp + "\n" +
+                        "Type: " + transactionType;
+            }
+
+            transactions.add(transactionString);
+        }
+
+        for (String transaction : transactions) {
+            System.out.println(transaction + "\n" + "-----------");
         }
     }
 

@@ -140,6 +140,12 @@ public class RegularUser extends User {
                     }
                     break;
                 case 7:
+                    try {
+                        operationsController.viewTransactions(getUsername());
+                    } catch (SQLException exception) {
+                        System.err.println("Database error: " + exception.getMessage());
+                        exception.printStackTrace();
+                    }
                     break;
                 case 8:
                     loggedIn = false;
