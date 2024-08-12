@@ -80,7 +80,7 @@ The application uses a MySQL database with the following tables:
 1. <b>Clone the repository:</b>
   ```
   git clone git@github.com:badrean/SimpleBankingApplication.git
-  cd banking-application
+  cd SimpleBankingApplication
   ```
 
 2. <b>Set Up the Database:</b>
