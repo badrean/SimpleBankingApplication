@@ -94,7 +94,7 @@ The application uses a MySQL database with the following tables:
      ```
    * Run the Application:
      ```
-       mvn exec:java -Dexec.mainClass="com.yourpackage.Main"
+       mvn exec:java -Dexec.mainClass="banking.Main"
      ```
 ### Usage
 * <b>Admin Login:</b> Use the credentials of an admin user to log in and access administrative features.
